@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import com.api.pactory.global.security.CustomUsernamePwdAuthenticationFilter;
 import com.api.pactory.global.security.JwtAuthenticationFilter;
+import com.api.pactory.global.security.JwtService;
 import jakarta.servlet.Filter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

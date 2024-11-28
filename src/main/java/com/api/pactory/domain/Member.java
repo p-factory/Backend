@@ -4,6 +4,7 @@ import com.api.pactory.global.utill.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 
 
 @Entity
@@ -27,4 +28,19 @@ public class Member extends BaseEntity{
 
     @Column(name="password", nullable=false)
     private String password;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberRole> memberRoleList;
+
+    public void addMemberRole(MemberRole memberRole) {
+        memberRoleList.add(memberRole);
+        memberRole.setMember(this);
+    }
+
+    public void changeRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }
