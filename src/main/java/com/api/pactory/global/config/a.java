@@ -3,6 +3,7 @@ package com.api.pactory.global.config;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.api.pactory.Member.repository.MemberRepository;
 import com.api.pactory.global.security.CustomUsernamePwdAuthenticationFilter;
 import com.api.pactory.global.security.JwtAuthenticationFilter;
 import com.api.pactory.global.security.JwtService;
