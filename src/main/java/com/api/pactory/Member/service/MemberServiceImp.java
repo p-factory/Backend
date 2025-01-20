@@ -26,8 +26,9 @@ public class MemberServiceImp implements MemberService, UserDetailsService {
 
     @Override
     public ResponseEntity<CustomApiResponse<?>> signIn(SigninResponseDto dto) {
+        Member member = memberRepository.findByMemberId(dto.getMemberId()).orElseThrow(RuntimeException::new);
 
-        return
+
     }
 
     @Override
