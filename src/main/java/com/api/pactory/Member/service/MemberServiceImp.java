@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,10 +27,23 @@ public class MemberServiceImp implements MemberService, UserDetailsService {
 
     @Override
     public ResponseEntity<CustomApiResponse<?>> signIn(SigninResponseDto dto) {
-        Member member = memberRepository.findByMemberId(dto.getMemberId()).orElseThrow(RuntimeException::new);
-
-
+        return null;
     }
+    @Override
+    public void updateRefreshToken(Member member, String reIssuedRefreshToken) {
+        member.changeRefreshToken(reIssuedRefreshToken);
+        memberRepository.saveAndFlush(member);
+    }
+
+
+    @Override
+    public Optional<Member> getMemberWithAuthorities(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElse(null);
+        member.getMemberRoleList().size();
+        return Optional.ofNullable(member);
+    }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {

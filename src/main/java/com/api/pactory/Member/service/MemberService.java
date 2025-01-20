@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface MemberService {
     ResponseEntity<CustomApiResponse<?>> signUp(SignupRequestDto dto);
     ResponseEntity<CustomApiResponse<?>> signIn(SigninResponseDto dto);
-
+    void updateRefreshToken(Member member, String reIssuedRefreshToken);
     Optional<Member> getMemberWithAuthorities(String loginId);
 }
