@@ -1,34 +1,62 @@
 package com.api.pactory.Member.service;
 
-import com.api.pactory.Member.dto.SigninResponseDto;
+
 import com.api.pactory.Member.dto.SignupRequestDto;
+import com.api.pactory.Member.enums.Authority;
 import com.api.pactory.Member.repository.MemberRepository;
+import com.api.pactory.Member.repository.RoleRepository;
 import com.api.pactory.domain.Member;
+import com.api.pactory.domain.MemberRole;
+import com.api.pactory.domain.Role;
+import com.api.pactory.global.security.JwtService;
 import com.api.pactory.global.utill.response.CustomApiResponse;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static com.api.pactory.Member.enums.Authority.ROLE_USER;
+
 
 @Service
-@AllArgsConstructor
-public class MemberServiceImp implements MemberService, UserDetailsService {
+@RequiredArgsConstructor
+@Transactional
+public class MemberServiceImp implements MemberService {
     private final MemberRepository memberRepository;
-    @Override
+    private final JwtService jwtService;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
+   @Override
     public ResponseEntity<CustomApiResponse<?>> signUp(SignupRequestDto dto) {
-        return null;
+        if (memberRepository.existsByMemberId(dto.getMemberId())) {
+            CustomApiResponse<?> response = CustomApiResponse.createFailWithout(HttpStatus.BAD_REQUEST.value(), "중복되는 아이디가 존재합니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        Member member = Member.toMember(dto, encodedPassword, jwtService.createRefreshToken());
+        Role role = roleRepository.findById(ROLE_USER.getId()).orElseThrow(RuntimeException::new);
+        MemberRole memberRole = MemberRole.builder().build();
+        role.addMemberRole(memberRole);
+        member.addMemberRole(memberRole);
+
+        // 저장
+        memberRepository.save(member);
+
+        CustomApiResponse<?> response = CustomApiResponse.createSuccessWithoutData(HttpStatus.OK.value(), "회원가입에 성공하였습니다");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Override
-    public ResponseEntity<CustomApiResponse<?>> signIn(SigninResponseDto dto) {
-        return null;
-    }
+
     @Override
     public void updateRefreshToken(Member member, String reIssuedRefreshToken) {
         member.changeRefreshToken(reIssuedRefreshToken);
@@ -36,29 +64,12 @@ public class MemberServiceImp implements MemberService, UserDetailsService {
     }
 
 
-    @Override
-    public Optional<Member> getMemberWithAuthorities(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElse(null);
-        member.getMemberRoleList().size();
-        return Optional.ofNullable(member);
+    private static boolean isWithinFiveMinute(LocalDateTime timeToCheck) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(timeToCheck, now);
+        return Math.abs(duration.toMinutes()) <= 5;
     }
 
 
-
-    @Override
-    public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 아이디가 존재하지 않습니다."));
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(member.getMemberId())
-                .authorities(member.getMemberRoleList()
-                        .stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority.getRole().getAuthority().toString()))
-                        .collect(
-                                Collectors.toSet()))
-                .password(member.getPassword())
-                .build();
-    }
     }
 

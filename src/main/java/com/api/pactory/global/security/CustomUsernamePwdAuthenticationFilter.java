@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomUsernamePwdAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final String DEFAULT_LOGIN_REQUEST_URL = "/api/login";
+    public static final String DEFAULT_SIGNUP_REQUEST_URL = "/api/signup";
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
     private static final String LOGIN_ID_KEY = "loginId";
@@ -33,12 +34,25 @@ public class CustomUsernamePwdAuthenticationFilter extends AbstractAuthenticatio
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
             new AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD);
 
+    private static final AntPathRequestMatcher DEFAULT_SIGNUP_PATH_REQUEST_MATCHER =
+            new AntPathRequestMatcher(DEFAULT_SIGNUP_REQUEST_URL, HTTP_METHOD);
+
     private final ObjectMapper objectMapper;
 
     public CustomUsernamePwdAuthenticationFilter(ObjectMapper objectMapper) {
-        super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER); // 기존 formlogin (/login) 형태를 변경
+        super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);// 기존 formlogin (/login) 형태를 변경
+
         this.objectMapper = objectMapper;
     }
+    @Override
+    public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        // 로그인과 회원가입 요청은 모두 필터에서 제외
+        if ( DEFAULT_SIGNUP_PATH_REQUEST_MATCHER.matches(request)) {
+            return false;
+        }
+        return super.requiresAuthentication(request, response); // 기본 로그인 요청은 처리
+    }
+
 
     /**
      * JWT 로컬 로그인 인증 과정
@@ -61,9 +75,8 @@ public class CustomUsernamePwdAuthenticationFilter extends AbstractAuthenticatio
         String loginId = usernamePasswordMap.get(LOGIN_ID_KEY);
         String password = usernamePasswordMap.get(PASSWORD_KEY);
 
-        //principal 과 credentials 전달
+        // principal 과 credentials 전달
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(loginId, password);
         return this.getAuthenticationManager().authenticate(authRequest);
     }
-
 }

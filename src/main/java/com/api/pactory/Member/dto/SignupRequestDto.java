@@ -15,12 +15,10 @@ import lombok.ToString;
 public class SignupRequestDto {
     @NotBlank(message = "이메일을 입력해주세요.")
     @Email(message = "올바른 이메일 형식으로 작성해주세요.")
-    private String loginId;
+    private String memberId;
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d\\S]{8,20}$", message = "영문, 숫자를 포함한 8~20자리 이내로 입력해주세요.")
     private String password;
     private String passwordCheck;
-    @Pattern(regexp = "^010\\d{4}\\d{4}$", message = "올바른 전화번호를 입력해 주세요.")
-    private String phoneNumber;
 
     @NotBlank(message = "이름을 정확하게 입력해주세요.")
     private String name;

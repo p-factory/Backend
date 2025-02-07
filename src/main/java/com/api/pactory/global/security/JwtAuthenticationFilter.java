@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.api.pactory.Member.enums.Authority;
 import com.api.pactory.Member.repository.MemberRepository;
-import com.api.pactory.Member.service.MemberService;
-import com.api.pactory.Member.service.MemberServiceImp;
+import com.api.pactory.Member.service.MemberQueryService;
+
 import com.api.pactory.domain.Member;
-import com.api.pactory.global.utill.init.Authority;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,14 +34,15 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
 
     /**
      * 로그인 요청 시 JWT 검증 X
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals(CustomUsernamePwdAuthenticationFilter.DEFAULT_LOGIN_REQUEST_URL);
+        return request.getServletPath().equals(CustomUsernamePwdAuthenticationFilter.DEFAULT_LOGIN_REQUEST_URL) ||
+                request.getServletPath().equals(CustomUsernamePwdAuthenticationFilter.DEFAULT_SIGNUP_REQUEST_URL);
     }
 
     /**
@@ -97,7 +99,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractLoginId(accessToken)
-                        .ifPresent(loginId -> memberService.getMemberWithAuthorities(loginId)
+                        .ifPresent(loginId -> memberQueryService.getMemberWithAuthorities(loginId)
                                 .ifPresent(this::saveAuthentication)));
 
         filterChain.doFilter(request, response);

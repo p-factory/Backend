@@ -1,6 +1,7 @@
 package com.api.pactory.domain;
 
-import com.api.pactory.global.utill.init.Authority;
+
+import com.api.pactory.Member.enums.Authority;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

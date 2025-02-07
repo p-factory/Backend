@@ -4,14 +4,17 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import com.api.pactory.Member.repository.MemberRepository;
+import com.api.pactory.Member.service.MemberQueryService;
+import com.api.pactory.Member.service.MemberQueryServiceImp;
 import com.api.pactory.Member.service.MemberService;
-import com.api.pactory.Member.service.MemberServiceImp;
+
 import com.api.pactory.global.handler.JwtLoginFailureHandler;
 import com.api.pactory.global.handler.JwtLoginSuccessHandler;
 import com.api.pactory.global.security.CustomUsernamePwdAuthenticationFilter;
 import com.api.pactory.global.security.JwtAuthenticationFilter;
 import com.api.pactory.global.security.JwtService;
-import jakarta.servlet.Filter;
+import com.api.pactory.global.security.LoginService;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -42,14 +45,13 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final MemberServiceImp loginService;
+    private final LoginService loginService;
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
     private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
     private final JwtLoginFailureHandler jwtLoginFailureHandler;
-    private final MemberService memberService;
-
+    private final MemberQueryService memberQueryService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -62,7 +64,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
 
 
-                        .requestMatchers(HttpMethod.POST, "*").permitAll() // 허용된 주소
+                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup").permitAll() // 허용된 주소
 
                         .anyRequest().authenticated()
                 )
@@ -110,9 +112,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public Filter jwtAuthenticationProcessingFilter() {
+    public JwtAuthenticationFilter jwtAuthenticationProcessingFilter() {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService,
-                memberRepository, memberService);
+                memberRepository, memberQueryService);
         return jwtAuthenticationFilter;
     }
 

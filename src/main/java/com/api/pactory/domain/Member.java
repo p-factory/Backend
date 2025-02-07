@@ -1,9 +1,12 @@
 package com.api.pactory.domain;
 
+import com.api.pactory.Member.dto.SignupRequestDto;
+import com.api.pactory.Member.dto.SignupResponseDto;
 import com.api.pactory.global.utill.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -33,14 +36,35 @@ public class Member extends BaseEntity{
     private String refreshToken;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberRole> memberRoleList;
+    private List<MemberRole> memberRoleList = new ArrayList<>();
+
+    
+
+    public void changeRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+    public static Member toMember(SignupRequestDto request, String encodedPassword,
+                                  String refreshToken) {
+        return Member.builder()
+                .memberId(request.getMemberId())
+                .password(encodedPassword)
+                .refreshToken(refreshToken)
+                .nickname(request.getName())
+                .memberRoleList(new ArrayList<>())
+                .build();
+
+    }
+
+    public static SignupResponseDto toSignupResponseDto(Member member) {
+        return SignupResponseDto.builder()
+                .id(member.getId())
+                .createdAt(member.getCreatedAt())
+                .build();
+    }
+
 
     public void addMemberRole(MemberRole memberRole) {
         memberRoleList.add(memberRole);
         memberRole.setMember(this);
-    }
-
-    public void changeRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 }
