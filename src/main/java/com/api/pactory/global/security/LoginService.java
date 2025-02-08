@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,14 +27,17 @@ public class LoginService implements UserDetailsService {
         Member member = memberRepository.findByMemberId(loginId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 아이디가 존재하지 않습니다."));
 
+        // 권한을 Set<GrantedAuthority> 타입으로 설정
+        Set<GrantedAuthority> authorities = member.getMemberRoleList()
+                .stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getRole().getAuthority().toString()))
+                .collect(Collectors.toSet()); // Set<GrantedAuthority> 반환
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(member.getMemberId())
-                .authorities((GrantedAuthority) member.getMemberRoleList()
-                        .stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority.getRole().getAuthority().toString()))
-                        .collect(
-                                Collectors.toSet()))
+                .authorities(authorities)  // 권한 설정
                 .password(member.getPassword())
                 .build();
     }
 }
+
