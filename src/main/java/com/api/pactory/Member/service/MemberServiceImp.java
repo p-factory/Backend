@@ -20,8 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
+import static com.api.pactory.Member.enums.Authority.ROLE_ADMIN;
 import static com.api.pactory.Member.enums.Authority.ROLE_USER;
 
 
@@ -34,7 +36,7 @@ public class MemberServiceImp implements MemberService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-   @Override
+    @Override
     public ResponseEntity<CustomApiResponse<?>> signUp(SignupRequestDto dto) {
         if (memberRepository.existsByMemberId(dto.getMemberId())) {
             CustomApiResponse<?> response = CustomApiResponse.createFailWithout(HttpStatus.BAD_REQUEST.value(), "중복되는 아이디가 존재합니다");
@@ -44,9 +46,21 @@ public class MemberServiceImp implements MemberService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         Member member = Member.toMember(dto, encodedPassword, jwtService.createRefreshToken());
-        Role role = roleRepository.findById(ROLE_USER.getId()).orElseThrow(RuntimeException::new);
-        MemberRole memberRole = MemberRole.builder().build();
-        role.addMemberRole(memberRole);
+
+        // 역할 확인
+        Optional<Role> optionalRole = roleRepository.findById(ROLE_USER.getId());
+        if (!optionalRole.isPresent()) {
+            // 역할이 존재하지 않는 경우 처리
+            CustomApiResponse<?> response = CustomApiResponse.createFailWithout(HttpStatus.BAD_REQUEST.value(), "존재하지 않는 역할입니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        Role role = optionalRole.get();
+
+        MemberRole memberRole = MemberRole.builder()
+                .role(role) // 역할을 설정
+                .member(member) // 회원 설정
+                .build();
+
         member.addMemberRole(memberRole);
 
         // 저장
@@ -55,7 +69,6 @@ public class MemberServiceImp implements MemberService {
         CustomApiResponse<?> response = CustomApiResponse.createSuccessWithoutData(HttpStatus.OK.value(), "회원가입에 성공하였습니다");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 
     @Override
     public void updateRefreshToken(Member member, String reIssuedRefreshToken) {
