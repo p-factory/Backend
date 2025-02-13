@@ -128,5 +128,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authorities);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -16,6 +17,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
     private final MemberRepository memberRepository;
 
@@ -35,9 +37,10 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Member member = null;
+
         if (authentication.getPrincipal() instanceof UserDetails) {
             UserDetails userDetails = (UserDetails)authentication.getPrincipal();
+            System.out.println(userDetails.getUsername());
             return memberRepository.findByMemberId(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException());
         } else {

@@ -16,6 +16,7 @@ public class MemberQueryServiceImp implements MemberQueryService {
     @Override
     public Optional<Member> getMemberWithAuthorities(String loginId) {
         Member member = memberRepository.findByMemberId(loginId).orElse(null);
+        System.out.println(Optional.ofNullable(member));
         member.getMemberRoleList().size();
         return Optional.ofNullable(member);
     }

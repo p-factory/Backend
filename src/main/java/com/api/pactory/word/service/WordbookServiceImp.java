@@ -10,6 +10,7 @@ import com.api.pactory.word.dto.WordDto;
 import com.api.pactory.word.dto.WordbookDtoWithWords;
 import com.api.pactory.word.repository.WordRepository;
 import com.api.pactory.word.repository.WordbookRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,14 +29,21 @@ public class WordbookServiceImp implements WordbookService {
     private final WordbookRepository wordbookRepository;
     private final WordRepository wordRepository;
 
-
+    @Transactional
     @Override
-    public ResponseEntity<CustomApiResponse> create(String name) {
+    public ResponseEntity<CustomApiResponse> create(String name, Member loginMember) {
+        System.out.println("로그인한 사용자: " + loginMember);
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(CustomApiResponse.createFailWithout(401, "로그인이 필요합니다."));
+        }
 
         Wordbook wordbook = Wordbook.builder()
                 .bookName(name)
                 .favorite(false)
+                .memberName(loginMember.getNickname())  // member 설정
                 .build();
+
         wordbook = wordbookRepository.save(wordbook);
         CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbook, "단어장 생성에 성공하였습니다");
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -110,8 +118,19 @@ public class WordbookServiceImp implements WordbookService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
     @Override
-    public ResponseEntity<CustomApiResponse>getAll(){
-        return null;
+    public ResponseEntity<CustomApiResponse> getAll(Member member) {
+        // 사용자 닉네임에 해당하는 단어장을 찾기
+        List<Wordbook> wordbooks = wordbookRepository.findByMemberName(member.getNickname());
+
+        if (wordbooks.isEmpty()) {
+            // 단어장이 없으면 404 상태 코드와 함께 실패 메시지 반환
+            CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        // 단어장이 있으면 성공적으로 단어장 목록 반환
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbooks, "단어장 목록을 가져왔습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 

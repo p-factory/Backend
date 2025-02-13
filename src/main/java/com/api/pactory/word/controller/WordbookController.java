@@ -18,8 +18,8 @@ public class WordbookController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<CustomApiResponse> create(@RequestBody WordbookDto dto) {
-        ResponseEntity<CustomApiResponse> response = wordbookService.create(dto.getName());
+    public ResponseEntity<CustomApiResponse> create(@RequestBody WordbookDto dto,@LoginMember Member loginMember) {
+        ResponseEntity<CustomApiResponse> response = wordbookService.create(dto.getName(),loginMember);
         return response;
     }
     @DeleteMapping("/delete/{id}")
@@ -43,8 +43,8 @@ public class WordbookController {
         return response;
     }
     @GetMapping("/all")
-    public ResponseEntity<CustomApiResponse> getAll() {
-        ResponseEntity<CustomApiResponse> response=wordbookService.getAll();
+    public ResponseEntity<CustomApiResponse> getAll(@LoginMember Member loginMember) {
+        ResponseEntity<CustomApiResponse> response=wordbookService.getAll(loginMember);
         return response;
     }
 }

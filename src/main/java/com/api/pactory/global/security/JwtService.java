@@ -132,7 +132,7 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(accessToken)
                 .getPayload();
-
+        System.out.println(Optional.ofNullable(String.valueOf(claims.get("loginId"))));
         return Optional.ofNullable(String.valueOf(claims.get("loginId")));
     }
 
