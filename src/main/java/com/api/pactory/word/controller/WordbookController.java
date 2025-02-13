@@ -1,6 +1,8 @@
 package com.api.pactory.word.controller;
 
+import com.api.pactory.domain.Member;
 import com.api.pactory.domain.Wordbook;
+import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import com.api.pactory.word.dto.WordbookDto;
 import com.api.pactory.word.service.WordbookService;

@@ -1,6 +1,10 @@
 package com.api.pactory.word.service;
 
+import com.api.pactory.Member.repository.MemberRepository;
+import com.api.pactory.domain.Member;
 import com.api.pactory.domain.Wordbook;
+import com.api.pactory.global.security.LoginMember;
+import com.api.pactory.global.utill.Member.AuthenticationMemberUtils;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import com.api.pactory.word.dto.WordDto;
 import com.api.pactory.word.dto.WordbookDtoWithWords;
@@ -15,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +28,10 @@ public class WordbookServiceImp implements WordbookService {
     private final WordbookRepository wordbookRepository;
     private final WordRepository wordRepository;
 
+
     @Override
     public ResponseEntity<CustomApiResponse> create(String name) {
+
         Wordbook wordbook = Wordbook.builder()
                 .bookName(name)
                 .favorite(false)
@@ -51,6 +58,7 @@ public class WordbookServiceImp implements WordbookService {
         if (wordbookRepository.existsById(id)) {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             wordbook.setBookName(name);
+            wordbookRepository.save(wordbook);
             CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbook, "단어장 이름변경에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }

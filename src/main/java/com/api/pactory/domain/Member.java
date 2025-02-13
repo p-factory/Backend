@@ -37,7 +37,8 @@ public class Member extends BaseEntity{
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberRole> memberRoleList = new ArrayList<>();
-
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wordbook> wordbookList = new ArrayList<>();
     
 
     public void changeRefreshToken(String refreshToken) {
@@ -66,5 +67,19 @@ public class Member extends BaseEntity{
     public void addMemberRole(MemberRole memberRole) {
         memberRoleList.add(memberRole);
         memberRole.setMember(this);
+    }
+    // 단어장 교환 메서드 추가
+    public void exchangeWordbook(Member targetMember, Wordbook wordbook) {
+        // 현재 사용자의 단어장을 상대방에게 전달
+        targetMember.addWordbook(wordbook);
+
+        // 현재 사용자의 단어장에서 해당 단어장 삭제
+        this.wordbookList.remove(wordbook);
+        wordbook.setMember(targetMember); // 단어장의 소유자를 변경
+    }
+
+    public void addWordbook(Wordbook wordbook) {
+        this.wordbookList.add(wordbook);
+        wordbook.setMember(this); // 단어장의 소유자를 현재 사용자로 설정
     }
 }

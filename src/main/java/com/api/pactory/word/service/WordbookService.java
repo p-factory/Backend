@@ -1,5 +1,7 @@
 package com.api.pactory.word.service;
 
+import com.api.pactory.domain.Member;
+import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import org.springframework.http.ResponseEntity;
 
