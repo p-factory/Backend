@@ -48,8 +48,8 @@ public class WordServiceImp implements WordService {
 
     // 단어 수정
     @Override
-    public ResponseEntity<CustomApiResponse> updateWord(WordDto wordDto) {
-        Optional<Word> wordOpt = wordRepository.findById(wordDto.getId());
+    public ResponseEntity<CustomApiResponse> updateWord(Long id,WordDto wordDto) {
+        Optional<Word> wordOpt = wordRepository.findById(id);
         if (wordOpt.isPresent()) {
             Word word = wordOpt.get();
             // 단어 수정

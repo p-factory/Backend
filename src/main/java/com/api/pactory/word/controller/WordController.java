@@ -19,14 +19,14 @@ public class WordController {
         ResponseEntity<CustomApiResponse> response = wordService.createWord(dto);
         return response;
     }
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CustomApiResponse> delete(@PathVariable("id") Long id) {
+    @DeleteMapping("/delete/{wordId}")
+    public ResponseEntity<CustomApiResponse> delete(@PathVariable("wordId") Long id) {
         ResponseEntity<CustomApiResponse> response=wordService.deleteWord(id);
         return response;
     }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<CustomApiResponse> update(@PathVariable("id") Long id, @RequestBody WordDto dto ) {
-        ResponseEntity<CustomApiResponse> response=wordService.updateWord(dto);
+    @PutMapping("/update/{wordId}")
+    public ResponseEntity<CustomApiResponse> update(@PathVariable("wordId") Long id, @RequestBody WordDto dto) {
+        ResponseEntity<CustomApiResponse> response=wordService.updateWord(id,dto);
         return response;
     }
     @PutMapping("/highlight/{id}")

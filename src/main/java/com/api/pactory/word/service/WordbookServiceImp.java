@@ -7,6 +7,7 @@ import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.Member.AuthenticationMemberUtils;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import com.api.pactory.word.dto.WordDto;
+import com.api.pactory.word.dto.WordbookDto;
 import com.api.pactory.word.dto.WordbookDtoWithWords;
 import com.api.pactory.word.repository.WordRepository;
 import com.api.pactory.word.repository.WordbookRepository;
@@ -127,9 +128,12 @@ public class WordbookServiceImp implements WordbookService {
             CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+        List<WordbookDto> wordbookDtos = wordbooks.stream()
+                .map(wordbook -> new WordbookDto(wordbook))
+                .collect(Collectors.toList());
 
         // 단어장이 있으면 성공적으로 단어장 목록 반환
-        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbooks, "단어장 목록을 가져왔습니다.");
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbookDtos, "단어장 목록을 가져왔습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

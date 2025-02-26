@@ -19,7 +19,7 @@ public class WordbookController {
 
     @PostMapping("/create")
     public ResponseEntity<CustomApiResponse> create(@RequestBody WordbookDto dto,@LoginMember Member loginMember) {
-        ResponseEntity<CustomApiResponse> response = wordbookService.create(dto.getName(),loginMember);
+        ResponseEntity<CustomApiResponse> response = wordbookService.create(dto.getBookName(),loginMember);
         return response;
     }
     @DeleteMapping("/delete/{id}")
@@ -29,7 +29,7 @@ public class WordbookController {
     }
     @PutMapping("/update/{id}")
     public ResponseEntity<CustomApiResponse> update(@PathVariable("id") Long id, @RequestBody WordbookDto dto) {
-        ResponseEntity<CustomApiResponse> response=wordbookService.update(id,dto.getName());
+        ResponseEntity<CustomApiResponse> response=wordbookService.update(id,dto.getBookName());
         return response;
     }
     @PutMapping("/favorite/{id}")
@@ -39,7 +39,7 @@ public class WordbookController {
     }
     @GetMapping("/{page}")
     public ResponseEntity<CustomApiResponse> gets(@PathVariable("page") int page,@RequestBody WordbookDto dto) {
-        ResponseEntity<CustomApiResponse> response=wordbookService.gets(dto.getId(),page);
+        ResponseEntity<CustomApiResponse> response=wordbookService.gets(dto.getWordbookId(),page);
         return response;
     }
     @GetMapping("/all")
