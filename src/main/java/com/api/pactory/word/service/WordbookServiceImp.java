@@ -80,7 +80,9 @@ public class WordbookServiceImp implements WordbookService {
         if (wordbookRepository.existsById(id)) {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             wordbook.setFavorite(true);
-            CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbook, "단어장 이름변경에 성공하였습니다.");
+            wordbookRepository.save(wordbook);
+            WordbookDto dto =new WordbookDto(wordbook);
+            CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, dto, "단어장 이름변경에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");

@@ -29,7 +29,7 @@ public class WordController {
         ResponseEntity<CustomApiResponse> response=wordService.updateWord(id,dto);
         return response;
     }
-    @PutMapping("/highlight/{id}")
+    @PostMapping("/highlight/{id}")
     public ResponseEntity<CustomApiResponse> highlight(@PathVariable("id") Long id) {
         ResponseEntity<CustomApiResponse> response=wordService.addHighlight(id);
         return response;

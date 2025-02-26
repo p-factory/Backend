@@ -32,14 +32,16 @@ public class WordbookController {
         ResponseEntity<CustomApiResponse> response=wordbookService.update(id,dto.getBookName());
         return response;
     }
-    @PutMapping("/favorite/{id}")
+    @PostMapping("/favorite/{id}")
     public ResponseEntity<CustomApiResponse> favorite(@PathVariable("id") Long id) {
         ResponseEntity<CustomApiResponse> response=wordbookService.favorite(id);
         return response;
     }
-    @GetMapping("/{page}")
-    public ResponseEntity<CustomApiResponse> gets(@PathVariable("page") int page,@RequestBody WordbookDto dto) {
-        ResponseEntity<CustomApiResponse> response=wordbookService.gets(dto.getWordbookId(),page);
+    @GetMapping
+    public ResponseEntity<CustomApiResponse> gets(
+            @RequestParam("id") Long wordbookId,
+            @RequestParam("page") int page) {
+        ResponseEntity<CustomApiResponse> response = wordbookService.gets(wordbookId, page);
         return response;
     }
     @GetMapping("/all")
