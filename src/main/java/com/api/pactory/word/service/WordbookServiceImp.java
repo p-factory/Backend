@@ -97,7 +97,7 @@ public class WordbookServiceImp implements WordbookService {
             var wordPage = wordRepository.findWordsByWordbookId(id, pageable);
             if (wordPage.hasContent()) {
                 List<WordDto> wordDtos = wordPage.getContent().stream()
-                        .map(word -> new WordDto(word.getId(), word.getWord(), word.getWordMeaning().getMeanings()))
+                        .map(word -> new WordDto(word.getId(), word.getWord(), word.getWordMeaning().getMeanings(), word.isHighlight()))
                         .collect(Collectors.toList());
                 // 단어장 이름과 즐겨찾기 상태 포함
                 var responseData = new WordbookDtoWithWords(
