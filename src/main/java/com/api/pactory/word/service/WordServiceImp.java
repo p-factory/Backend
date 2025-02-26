@@ -86,7 +86,7 @@ public class WordServiceImp implements WordService {
             Word word = wordOpt.get();
             word.setHighlight(true);// 뜻에 형광펜 추가
             wordRepository.save(word);
-            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings());
+            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight());
             CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"형광펜추가에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
