@@ -1,9 +1,14 @@
 package com.api.pactory.global.utill.exception;
 
 
+
+
+import com.api.pactory.global.utill.init.ErrorCode;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -36,5 +41,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(CustomApiResponse.createFailWithoutData(HttpStatus.BAD_REQUEST.value(), errorMessage));
     }
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomException(CustomException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
 
+        Map<String, Object> errorResponse = Map.of(
+                "status", errorCode.getStatus(),
+                "code", errorCode.getCode(),
+                "message", errorCode.getMessage()
+        );
+
+        return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
+    }
 }
