@@ -23,7 +23,7 @@ public class Word {
     @Column(name = "highlight")
     private boolean highlight;
 
-    @Column(name = "check")
+    @Column(name = "word_check")
     private boolean check;
 
     @ManyToOne
