@@ -9,4 +9,5 @@ public interface WordService {
     ResponseEntity<CustomApiResponse> updateWord(Long id,WordDto wordDto);
     ResponseEntity<CustomApiResponse> deleteWord(Long Id);
     ResponseEntity<CustomApiResponse> addHighlight(Long Id);
+    ResponseEntity<CustomApiResponse> addCheck(Long Id);
 }

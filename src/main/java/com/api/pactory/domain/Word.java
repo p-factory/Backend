@@ -23,6 +23,9 @@ public class Word {
     @Column(name = "highlight")
     private boolean highlight;
 
+    @Column(name = "check")
+    private boolean check;
+
     @ManyToOne
     @JoinColumn(name = "wordbook_id")
     private Wordbook wordbook; // 이 단어가 속한 단어장

@@ -8,10 +8,13 @@ import java.util.Optional;
 import javax.crypto.SecretKey;
 
 import com.api.pactory.Member.repository.MemberRepository;
+import com.api.pactory.global.utill.response.CustomApiResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -172,7 +175,8 @@ public class JwtService {
             return true;
         } catch (Exception e) {
             log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
-            return false;
+            CustomApiResponse<?> failWithout = CustomApiResponse.createFailWithout(401, "유효하지 않은 토큰입니다.");
+            return ResponseEntity.status(401).body(failWithout).hasBody();
         }
     }
 

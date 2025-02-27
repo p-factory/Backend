@@ -84,13 +84,27 @@ public class WordServiceImp implements WordService {
         Optional<Word> wordOpt = wordRepository.findById(wordId);
         if (wordOpt.isPresent()) {
             Word word = wordOpt.get();
-            word.setHighlight(true);// 뜻에 형광펜 추가
+            word.setHighlight(!word.isHighlight());// 뜻에 형광펜 추가
             wordRepository.save(word);
-            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight());
-            CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"형광펜추가에 성공하였습니다.");
+            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck());
+            CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"형광펜 설정에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
 
+        CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어가 존재하지 않습니다.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    @Override
+    public ResponseEntity<CustomApiResponse> addCheck(Long wordId) {
+        Optional<Word> wordOpt = wordRepository.findById(wordId);
+        if (wordOpt.isPresent()) {
+            Word word = wordOpt.get();
+            word.setCheck(!word.isCheck());
+            wordRepository.save(word);
+            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck());
+            CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"단어체크 설정에 성공하였습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
         CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어가 존재하지 않습니다.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }

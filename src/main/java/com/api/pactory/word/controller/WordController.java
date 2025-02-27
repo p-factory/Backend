@@ -34,4 +34,9 @@ public class WordController {
         ResponseEntity<CustomApiResponse> response=wordService.addHighlight(id);
         return response;
     }
+    @PostMapping("/check/{id}")
+    public ResponseEntity<CustomApiResponse> check(@PathVariable("id") Long id) {
+        ResponseEntity<CustomApiResponse> response=wordService.addCheck(id);
+        return response;
+    }
 }

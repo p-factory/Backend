@@ -12,12 +12,14 @@ public class WordDto {
     private String word;
     private List<String> meanings;
     private boolean highlight;
+    private boolean check;
 
-    public WordDto(Long id, String word, List<String> meanings, boolean highlight) {
+    public WordDto(Long id, String word, List<String> meanings, boolean highlight, boolean check) {
         this.id = id;
         this.word = word;
         this.meanings = meanings;
         this.highlight = highlight;
+        this.check = check;
 
     }
 }
