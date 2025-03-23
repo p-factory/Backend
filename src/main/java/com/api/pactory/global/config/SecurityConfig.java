@@ -65,6 +65,7 @@ public class SecurityConfig {
 
 
                         .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup").permitAll() // 허용된 주소
+                        .requestMatchers("/error").permitAll()
 
                         .anyRequest().authenticated()
                 )

@@ -2,6 +2,7 @@ package com.api.pactory.word.service;
 
 import com.api.pactory.Member.repository.MemberRepository;
 import com.api.pactory.domain.Member;
+import com.api.pactory.domain.Word;
 import com.api.pactory.domain.Wordbook;
 import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.Member.AuthenticationMemberUtils;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,7 +70,8 @@ public class WordbookServiceImp implements WordbookService {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             wordbook.setBookName(name);
             wordbookRepository.save(wordbook);
-            CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbook, "단어장 이름변경에 성공하였습니다.");
+            WordbookDto wordbookDto =new WordbookDto(wordbook);
+            CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbookDto, "단어장 이름변경에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
@@ -124,6 +127,8 @@ public class WordbookServiceImp implements WordbookService {
     public ResponseEntity<CustomApiResponse> getAll(Member member) {
         // 사용자 닉네임에 해당하는 단어장을 찾기
         List<Wordbook> wordbooks = wordbookRepository.findByMemberName(member.getNickname());
+        int page = 10;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
 
         if (wordbooks.isEmpty()) {
             // 단어장이 없으면 404 상태 코드와 함께 실패 메시지 반환
@@ -131,7 +136,11 @@ public class WordbookServiceImp implements WordbookService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         List<WordbookDto> wordbookDtos = wordbooks.stream()
-                .map(wordbook -> new WordbookDto(wordbook))
+                .map(wordbook ->
+                {
+                    Long wordCount = wordRepository.findWordsByWordbookId(wordbook.getId(),pageable).getTotalElements(); // 단어 개수 조회
+                    return new WordbookDto(wordbook.getBookName(),wordbook.getId(),wordbook.isFavorite(),wordCount);
+                })
                 .collect(Collectors.toList());
 
         // 단어장이 있으면 성공적으로 단어장 목록 반환
