@@ -12,5 +12,6 @@ public interface MemberService {
     ResponseEntity<CustomApiResponse<?>> signUp(SignupRequestDto dto);
 
     void updateRefreshToken(Member member, String reIssuedRefreshToken);
+    ResponseEntity<CustomApiResponse<?>> getMyPage(Member member);
 
 }

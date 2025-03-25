@@ -1,6 +1,7 @@
 package com.api.pactory.Member.service;
 
 
+import com.api.pactory.Member.dto.SigninResponseDto;
 import com.api.pactory.Member.dto.SignupRequestDto;
 import com.api.pactory.Member.enums.Authority;
 import com.api.pactory.Member.repository.MemberRepository;
@@ -81,6 +82,13 @@ public class MemberServiceImp implements MemberService {
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(timeToCheck, now);
         return Math.abs(duration.toMinutes()) <= 5;
+    }
+
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> getMyPage(Member member) {
+        SigninResponseDto signinResponseDto =new SigninResponseDto(member.getMemberId(), member.getNickname(), member.getPassword());
+        CustomApiResponse<?> response = CustomApiResponse.createSuccess(HttpStatus.OK.value(), signinResponseDto,"회원 조회에 성공하였습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 
