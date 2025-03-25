@@ -173,7 +173,7 @@ public class WordbookServiceImp implements WordbookService {
                 .replaceAll("\\+", "%20"); // 공백을 %20으로 변환
 
         response.setContentType("text/csv; charset=UTF-8");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+encodedFileName);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8"+encodedFileName);
 
         try (ServletOutputStream outputStream = response.getOutputStream();
              OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
