@@ -172,8 +172,8 @@ public class WordbookServiceImp implements WordbookService {
         String originalFileName = wordbook.getBookName() + ".csv";
 // 전체 파일명을 UTF-8로 URL 인코딩 (공백은 %20으로 변환)
         String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8)
-                .replace("+", "%20");
-
+                .replace("\\", "%20");
+        System.out.println(encodedFileName);
 // User-Agent에 따른 브라우저 별 처리
         String userAgent = response.getHeader("User-Agent");
         String contentDisposition;
