@@ -40,8 +40,10 @@ dependencies {
 
 	// Spring Security OAUTH 2.1
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-}
+	implementation 'com.opencsv:opencsv:5.5'
 
-tasks.named('test') {
-	useJUnitPlatform()
+
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
 }

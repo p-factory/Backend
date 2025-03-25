@@ -6,6 +6,7 @@ import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import com.api.pactory.word.dto.WordbookDto;
 import com.api.pactory.word.service.WordbookService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +49,10 @@ public class WordbookController {
     public ResponseEntity<CustomApiResponse> getAll(@LoginMember Member loginMember) {
         ResponseEntity<CustomApiResponse> response=wordbookService.getAll(loginMember);
         return response;
+    }
+    @PostMapping("/export/{wordbookID}")
+    public ResponseEntity<CustomApiResponse> export(@LoginMember Member loginMember, @PathVariable("wordbookID") Long wordbookID, HttpServletResponse response) {
+        ResponseEntity<CustomApiResponse> responseq=wordbookService.export(loginMember,wordbookID,response);
+        return responseq;
     }
 }

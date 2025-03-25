@@ -8,10 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("SELECT w FROM Word w WHERE w.wordbook.id = :wordbookId")
     Page<Word> findWordsByWordbookId(@Param("wordbookId") Long wordbookId, Pageable pageable);
+
+    List<Word> findByWordbookId(Long id);
 }
 

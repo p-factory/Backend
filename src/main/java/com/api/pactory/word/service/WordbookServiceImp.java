@@ -12,15 +12,21 @@ import com.api.pactory.word.dto.WordbookDto;
 import com.api.pactory.word.dto.WordbookDtoWithWords;
 import com.api.pactory.word.repository.WordRepository;
 import com.api.pactory.word.repository.WordbookRepository;
+import com.opencsv.CSVWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +76,7 @@ public class WordbookServiceImp implements WordbookService {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             wordbook.setBookName(name);
             wordbookRepository.save(wordbook);
-            WordbookDto wordbookDto =new WordbookDto(wordbook);
+            WordbookDto wordbookDto = new WordbookDto(wordbook);
             CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, wordbookDto, "단어장 이름변경에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
@@ -84,7 +90,7 @@ public class WordbookServiceImp implements WordbookService {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             wordbook.setFavorite(true);
             wordbookRepository.save(wordbook);
-            WordbookDto dto =new WordbookDto(wordbook);
+            WordbookDto dto = new WordbookDto(wordbook);
             CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, dto, "단어장 이름변경에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
@@ -93,14 +99,14 @@ public class WordbookServiceImp implements WordbookService {
     }
 
     @Override
-    public ResponseEntity<CustomApiResponse> gets(Long id, int page){
+    public ResponseEntity<CustomApiResponse> gets(Long id, int page) {
         if (wordbookRepository.existsById(id)) {
             Wordbook wordbook = wordbookRepository.findById(id).get();
             Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
             var wordPage = wordRepository.findWordsByWordbookId(id, pageable);
             if (wordPage.hasContent()) {
                 List<WordDto> wordDtos = wordPage.getContent().stream()
-                        .map(word -> new WordDto(word.getId(), word.getWord(), word.getWordMeaning().getMeanings(), word.isHighlight(),word.isCheck()))
+                        .map(word -> new WordDto(word.getId(), word.getWord(), word.getWordMeaning().getMeanings(), word.isHighlight(), word.isCheck()))
                         .collect(Collectors.toList());
                 // 단어장 이름과 즐겨찾기 상태 포함
                 var responseData = new WordbookDtoWithWords(
@@ -123,6 +129,7 @@ public class WordbookServiceImp implements WordbookService {
         CustomApiResponse<?> response = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
     @Override
     public ResponseEntity<CustomApiResponse> getAll(Member member) {
         // 사용자 닉네임에 해당하는 단어장을 찾기
@@ -138,8 +145,8 @@ public class WordbookServiceImp implements WordbookService {
         List<WordbookDto> wordbookDtos = wordbooks.stream()
                 .map(wordbook ->
                 {
-                    Long wordCount = wordRepository.findWordsByWordbookId(wordbook.getId(),pageable).getTotalElements(); // 단어 개수 조회
-                    return new WordbookDto(wordbook.getBookName(),wordbook.getId(),wordbook.isFavorite(),wordCount);
+                    Long wordCount = wordRepository.findWordsByWordbookId(wordbook.getId(), pageable).getTotalElements(); // 단어 개수 조회
+                    return new WordbookDto(wordbook.getBookName(), wordbook.getId(), wordbook.isFavorite(), wordCount);
                 })
                 .collect(Collectors.toList());
 
@@ -148,5 +155,35 @@ public class WordbookServiceImp implements WordbookService {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Override
+    public ResponseEntity<CustomApiResponse> export(Member member, Long id, HttpServletResponse response) {
+        if (wordbookRepository.existsById(id)) {
+            CustomApiResponse<?> response1 = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response1);
+        }
+        Optional<Wordbook> wordbook = wordbookRepository.findById(id);
+        List<Word> words = wordRepository.findByWordbookId(wordbook.get().getId());
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.csv");
 
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8))) {
+            writer.writeNext(new String[]{"단어", "뜻", "하이라이트", "체크 여부"});
+
+            for (Word word : words) {
+                String meanings = String.join(", ", word.getWordMeaning().getMeanings());
+                writer.writeNext(new String[]{
+                        word.getWord(),
+                        meanings,
+                        word.isHighlight() ? "O" : "X",
+                        word.isCheck() ? "O" : "X"
+                });
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok().build();
+
+    }
 }
