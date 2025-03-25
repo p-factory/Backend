@@ -169,7 +169,8 @@ public class WordbookServiceImp implements WordbookService {
         List<Word> words = wordRepository.findByWordbookId(wordbook.getId());
 
         // ✅ 파일명 설정 (한글 깨짐 방지)
-        String encodedFileName = wordbook.getBookName(); // 공백을 %20으로 변환
+        String encodedFileName = URLEncoder.encode(wordbook.getBookName(), StandardCharsets.UTF_8)
+                .replaceAll(" +", "%20"); // 공백을 %20으로 변환
 
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''"+encodedFileName+ ".csv");
