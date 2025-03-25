@@ -160,17 +160,20 @@ public class WordbookServiceImp implements WordbookService {
     @Override
     public ResponseEntity<CustomApiResponse> export(Member member, Long id, HttpServletResponse response) {
         Optional<Wordbook> wordbookOpt = wordbookRepository.findById(id);
-
         if (wordbookOpt.isEmpty()) {
             CustomApiResponse<?> responseBody = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
 
-        List<Word> words = wordRepository.findByWordbookId(wordbookOpt.get().getId());
+        Wordbook wordbook = wordbookOpt.get();
+        List<Word> words = wordRepository.findByWordbookId(wordbook.getId());
+
+        // ✅ 파일명 설정 (한글 깨짐 방지)
+        String encodedFileName = URLEncoder.encode(wordbook.getBookName(), StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20"); // 공백을 %20으로 변환
 
         response.setContentType("text/csv; charset=UTF-8");
-        String fileName = URLEncoder.encode(wordbookOpt.get().getBookName(), StandardCharsets.UTF_8) + ".csv";
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName + ".csv");
 
         try (ServletOutputStream outputStream = response.getOutputStream();
              OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
@@ -179,7 +182,7 @@ public class WordbookServiceImp implements WordbookService {
             // ✅ UTF-8 BOM 추가 (Excel에서 한글 깨짐 방지)
             outputStream.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
 
-            // ✅ CSV 헤더
+            // ✅ CSV 헤더 추가
             writer.writeNext(new String[]{"단어", "뜻", "하이라이트", "체크 여부"}, false);
 
             // ✅ 데이터 추가
@@ -190,10 +193,10 @@ public class WordbookServiceImp implements WordbookService {
                         meanings,
                         word.isHighlight() ? "O" : "X",
                         word.isCheck() ? "O" : "X"
-                }, false); // `false`를 넣어야 따옴표 없이 저장됨
+                }, false);
             }
 
-            writer.flush(); // 강제 출력
+            writer.flush();
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -201,5 +204,6 @@ public class WordbookServiceImp implements WordbookService {
         }
         return ResponseEntity.ok().build();
     }
+
 
 }
