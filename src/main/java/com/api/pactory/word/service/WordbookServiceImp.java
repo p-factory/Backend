@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,6 +160,7 @@ public class WordbookServiceImp implements WordbookService {
     @Override
     public ResponseEntity<CustomApiResponse> export(Member member, Long id, HttpServletResponse response) {
         Optional<Wordbook> wordbookOpt = wordbookRepository.findById(id);
+
         if (wordbookOpt.isEmpty()) {
             CustomApiResponse<?> responseBody = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
@@ -167,7 +169,8 @@ public class WordbookServiceImp implements WordbookService {
         List<Word> words = wordRepository.findByWordbookId(wordbookOpt.get().getId());
 
         response.setContentType("text/csv; charset=UTF-8");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.csv");
+        String fileName = URLEncoder.encode(wordbookOpt.get().getBookName(), StandardCharsets.UTF_8) + ".csv";
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
 
         try (ServletOutputStream outputStream = response.getOutputStream();
              OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
