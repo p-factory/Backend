@@ -168,11 +168,24 @@ public class WordbookServiceImp implements WordbookService {
         Wordbook wordbook = wordbookOpt.get();
         List<Word> words = wordRepository.findByWordbookId(wordbook.getId());
 
-        // ✅ 파일명 설정 (한글 깨짐 방지)
-        String encodedFileName = URLEncoder.encode(wordbook.getBookName()+".csv", StandardCharsets.UTF_8); // 공백을 %20으로 변환
+        // 전체 파일명을 구성 (한글 + 확장자)
+        String originalFileName = wordbook.getBookName() + ".csv";
+// 전체 파일명을 UTF-8로 URL 인코딩 (공백은 %20으로 변환)
+        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8)
+                .replace("+", "%20");
 
+// User-Agent에 따른 브라우저 별 처리
+        String userAgent = response.getHeader("User-Agent");
+        String contentDisposition;
+        if (userAgent != null && (userAgent.contains("MSIE") || userAgent.contains("Trident"))) {
+            // IE 등에서는 filename* 지원이 미흡하므로 filename만 사용
+            contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
+        } else {
+            // 최신 브라우저에서는 filename과 filename*를 함께 설정
+            contentDisposition = "attachment; filename=\"" + originalFileName + "\"; filename*=UTF-8''" + encodedFileName;
+        }
         response.setContentType("text/csv; charset=UTF-8");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=UTF-8''"+encodedFileName);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
 
         try (ServletOutputStream outputStream = response.getOutputStream();
              OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
