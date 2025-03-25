@@ -157,11 +157,12 @@ public class WordbookServiceImp implements WordbookService {
 
     @Override
     public ResponseEntity<CustomApiResponse> export(Member member, Long id, HttpServletResponse response) {
-        if (wordbookRepository.existsById(id)) {
+        Optional<Wordbook> wordbook = wordbookRepository.findById(id);
+        if (wordbook.isEmpty()) {
             CustomApiResponse<?> response1 = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response1);
         }
-        Optional<Wordbook> wordbook = wordbookRepository.findById(id);
+        ;
         List<Word> words = wordRepository.findByWordbookId(wordbook.get().getId());
         response.setContentType("text/csv");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.csv");
