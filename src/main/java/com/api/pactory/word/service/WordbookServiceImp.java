@@ -182,7 +182,7 @@ public class WordbookServiceImp implements WordbookService {
             contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
         } else {
             // 최신 브라우저에서는 filename과 filename*를 함께 설정
-            contentDisposition = "attachment; filename*=UTF_8''" + encodedFileName;
+            contentDisposition = "attachment; filename=" +encodedFileName;
         }
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
