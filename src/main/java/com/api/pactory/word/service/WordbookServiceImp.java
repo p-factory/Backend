@@ -164,7 +164,7 @@ public class WordbookServiceImp implements WordbookService {
         }
         ;
         List<Word> words = wordRepository.findByWordbookId(wordbook.get().getId());
-        response.setContentType("text/csv");
+        response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.csv");
 
         try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8))) {
