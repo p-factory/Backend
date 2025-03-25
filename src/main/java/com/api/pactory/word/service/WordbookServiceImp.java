@@ -13,6 +13,7 @@ import com.api.pactory.word.dto.WordbookDtoWithWords;
 import com.api.pactory.word.repository.WordRepository;
 import com.api.pactory.word.repository.WordbookRepository;
 import com.opencsv.CSVWriter;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -157,19 +158,28 @@ public class WordbookServiceImp implements WordbookService {
 
     @Override
     public ResponseEntity<CustomApiResponse> export(Member member, Long id, HttpServletResponse response) {
-        Optional<Wordbook> wordbook = wordbookRepository.findById(id);
-        if (wordbook.isEmpty()) {
-            CustomApiResponse<?> response1 = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response1);
+        Optional<Wordbook> wordbookOpt = wordbookRepository.findById(id);
+        if (wordbookOpt.isEmpty()) {
+            CustomApiResponse<?> responseBody = CustomApiResponse.createFailWithout(404, "단어장이 존재하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
-        ;
-        List<Word> words = wordRepository.findByWordbookId(wordbook.get().getId());
+
+        List<Word> words = wordRepository.findByWordbookId(wordbookOpt.get().getId());
+
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.csv");
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8))) {
-            writer.writeNext(new String[]{"단어", "뜻", "하이라이트", "체크 여부"});
+        try (ServletOutputStream outputStream = response.getOutputStream();
+             OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+             CSVWriter writer = new CSVWriter(streamWriter)) {
 
+            // ✅ UTF-8 BOM 추가 (Excel에서 한글 깨짐 방지)
+            outputStream.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+
+            // ✅ CSV 헤더
+            writer.writeNext(new String[]{"단어", "뜻", "하이라이트", "체크 여부"}, false);
+
+            // ✅ 데이터 추가
             for (Word word : words) {
                 String meanings = String.join(", ", word.getWordMeaning().getMeanings());
                 writer.writeNext(new String[]{
@@ -177,14 +187,16 @@ public class WordbookServiceImp implements WordbookService {
                         meanings,
                         word.isHighlight() ? "O" : "X",
                         word.isCheck() ? "O" : "X"
-                });
+                }, false); // `false`를 넣어야 따옴표 없이 저장됨
             }
 
+            writer.flush(); // 강제 출력
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(CustomApiResponse.createFailWithout(500, "CSV 파일 생성 중 오류 발생"));
         }
         return ResponseEntity.ok().build();
-
     }
+
 }
