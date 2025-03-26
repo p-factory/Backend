@@ -17,17 +17,18 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.util.URLEncoder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,7 +172,7 @@ public class WordbookServiceImp implements WordbookService {
         // 전체 파일명을 구성 (한글 + 확장자)
         String originalFileName = wordbook.getBookName() + ".csv";
 // 전체 파일명을 UTF-8로 URL 인코딩 (공백은 %20으로 변환)
-        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);
+        String encodedFileName = URLEncoder.DEFAULT.encode(originalFileName, StandardCharsets.UTF_8);
 
         System.out.println(encodedFileName);
 // User-Agent에 따른 브라우저 별 처리
@@ -182,7 +183,7 @@ public class WordbookServiceImp implements WordbookService {
             contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
         } else {
             // 최신 브라우저에서는 filename과 filename*를 함께 설정
-            contentDisposition = "attachment; filename=\"" + encodedFileName +"\"";
+            contentDisposition = "attachment; filename*=UTF-8''" + encodedFileName +"\"";
         }
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
