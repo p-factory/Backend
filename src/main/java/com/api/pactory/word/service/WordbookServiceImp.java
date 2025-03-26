@@ -171,8 +171,8 @@ public class WordbookServiceImp implements WordbookService {
         // 전체 파일명을 구성 (한글 + 확장자)
         String originalFileName = wordbook.getBookName() + ".csv";
 // 전체 파일명을 UTF-8로 URL 인코딩 (공백은 %20으로 변환)
-        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8)
-                .replace("\\", "%20");
+        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);
+
         System.out.println(encodedFileName);
 // User-Agent에 따른 브라우저 별 처리
         String userAgent = response.getHeader("User-Agent");
@@ -182,7 +182,7 @@ public class WordbookServiceImp implements WordbookService {
             contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
         } else {
             // 최신 브라우저에서는 filename과 filename*를 함께 설정
-            contentDisposition = "attachment; filename=" +encodedFileName;
+            contentDisposition = "attachment; filename=\"" + encodedFileName +"\"";
         }
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
