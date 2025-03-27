@@ -57,6 +57,8 @@ public class WordServiceImp implements WordService {
             // 단어 수정
             word.setWord(wordDto.getWord());
             word.setWordMeaning(new WordMeaning(wordDto.getMeanings()));
+            word.setPronunciation(wordDto.getPronunciation());
+            word.setExplanation(wordDto.getExplanation());
             wordRepository.save(word);
             CustomApiResponse response = CustomApiResponse.createSuccessWithoutData(200,"단어 수정에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
