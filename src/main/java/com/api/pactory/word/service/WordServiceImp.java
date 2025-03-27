@@ -35,6 +35,8 @@ public class WordServiceImp implements WordService {
                     .wordMeaning(wordMeaning)
                     .wordbook(wordbook)
                     .highlight(false)
+                    .explanation(wordDto.getExplanation())
+                    .Pronunciation(wordDto.getPronunciation())
                     .build();
 
             wordRepository.save(newWord);
@@ -86,7 +88,7 @@ public class WordServiceImp implements WordService {
             Word word = wordOpt.get();
             word.setHighlight(!word.isHighlight());// 뜻에 형광펜 추가
             wordRepository.save(word);
-            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck());
+            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck(), word.getExplanation(), word.getExplanation());
             CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"형광펜 설정에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
@@ -101,7 +103,7 @@ public class WordServiceImp implements WordService {
             Word word = wordOpt.get();
             word.setCheck(!word.isCheck());
             wordRepository.save(word);
-            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck());
+            WordDto wordDto = new WordDto(word.getId(),word.getWord(),word.getWordMeaning().getMeanings(),word.isHighlight(),word.isCheck(),word.getExplanation(), word.getExplanation());
             CustomApiResponse response = CustomApiResponse.createSuccess(200,wordDto,"단어체크 설정에 성공하였습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }

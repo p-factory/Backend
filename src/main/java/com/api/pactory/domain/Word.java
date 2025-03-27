@@ -23,6 +23,12 @@ public class Word {
     @Column(name = "highlight")
     private boolean highlight;
 
+    @Column
+    private  String Pronunciation;
+
+    @Column
+    private  String explanation;
+
     @Column(name = "word_check")
     private boolean check;
 
