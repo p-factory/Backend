@@ -91,7 +91,7 @@ public class WordbookServiceImp implements WordbookService {
     public ResponseEntity<CustomApiResponse> favorite(Long id) {
         if (wordbookRepository.existsById(id)) {
             Wordbook wordbook = wordbookRepository.findById(id).get();
-            wordbook.setFavorite(true);
+            wordbook.setFavorite(!wordbook.isFavorite());
             wordbookRepository.save(wordbook);
             WordbookDto dto = new WordbookDto(wordbook);
             CustomApiResponse<?> response = CustomApiResponse.createSuccess(200, dto, "단어장 이름변경에 성공하였습니다.");
