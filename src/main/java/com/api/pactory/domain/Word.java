@@ -20,6 +20,7 @@ public class Word {
 
     @Embedded
     private WordMeaning wordMeaning; // 뜻 (List<String> 포함)
+
     @Column(name = "highlight")
     private boolean highlight;
 
@@ -35,6 +36,10 @@ public class Word {
     @ManyToOne
     @JoinColumn(name = "wordbook_id")
     private Wordbook wordbook; // 이 단어가 속한 단어장
+
+    @ManyToOne
+    @JoinColumn(name = "wordpactory_id")
+    private WordPactory wordpactory;
 }
 
 
