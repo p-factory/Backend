@@ -47,7 +47,6 @@ public class MemberServiceImp implements MemberService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         Member member = Member.toMember(dto, encodedPassword, jwtService.createRefreshToken());
-
         // 역할 확인
         Optional<Role> optionalRole = roleRepository.findById(ROLE_USER.getId());
         if (!optionalRole.isPresent()) {

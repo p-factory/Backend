@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
+
 @RestController
 @RequestMapping("/api/wordbook")
 @RequiredArgsConstructor
@@ -54,5 +56,15 @@ public class WordbookController {
     public ResponseEntity<CustomApiResponse> export(@LoginMember Member loginMember, @PathVariable("wordbookID") Long wordbookID, HttpServletResponse response) {
         ResponseEntity<CustomApiResponse> responseq=wordbookService.export(loginMember,wordbookID,response);
         return responseq;
+    }
+    @PostMapping("/shared/{wordbookId}")
+    public ResponseEntity<CustomApiResponse> share(@LoginMember Member loginMember, @PathVariable("wordbookId") Long wordbookId) {
+        ResponseEntity<CustomApiResponse> response = wordbookService.share(loginMember,wordbookId);
+        return response;
+    }
+    @GetMapping("/shared/all/{page]")
+    public ResponseEntity<CustomApiResponse> getAllShared(@LoginMember Member loginMember,@PathVariable int page) {
+        ResponseEntity<CustomApiResponse>response = wordbookService.getShared(loginMember,page);
+        return response;
     }
 }

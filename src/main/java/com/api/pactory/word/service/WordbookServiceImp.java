@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.util.URLEncoder;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -219,6 +220,32 @@ public class WordbookServiceImp implements WordbookService {
         }
         return ResponseEntity.ok().build();
     }
+    @Override
+    public ResponseEntity<CustomApiResponse> share(Member member, Long id) {
+        Optional<Wordbook> wordbookOpt = wordbookRepository.findById(id);
+        if (wordbookOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CustomApiResponse.createFailWithout(404, "존재하지 않은 단어장입니다."));
+        }
+        Wordbook wordbook = wordbookOpt.get();
+        if (!wordbook.getMemberName().equals(member.getNickname())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CustomApiResponse.createFailWithout(404, "존재하지 않는 단어장 입니다."));
+        }
+        Wordbook wordbook1 = Wordbook.builder()
+                .shared(Shared.SHARED)
+                .build();
+        wordbookRepository.save(wordbook1);
+        return ResponseEntity.status(HttpStatus.OK).body(CustomApiResponse.createSuccess(200, null, "외부공장 업로드 성공"));
+    }
+    @Override
+    public ResponseEntity<CustomApiResponse> getShared(Member member, int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").ascending());
+        Page<Wordbook> wordbookPage = wordbookRepository.findByShared(Shared.SHARED, pageable);
 
+        if (wordbookPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(CustomApiResponse.createFailWithout(404, "외부공장이 텅 비어있습니다."));
+        }
 
+        return ResponseEntity.status(HttpStatus.OK).body(CustomApiResponse.createSuccess(200, wordbookPage, "<UNK> <UNK> <UNK>"));
+    }
 }
