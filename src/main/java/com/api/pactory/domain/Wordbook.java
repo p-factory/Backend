@@ -1,5 +1,6 @@
 package com.api.pactory.domain;
 
+import com.api.pactory.global.utill.init.Shared;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,9 @@ public class Wordbook {
 
     @Column(name = "favorite")
     private boolean favorite; // 즐겨찾기 여부
+
+    @Enumerated(EnumType.STRING)
+    private Shared shared;
 
 
 }

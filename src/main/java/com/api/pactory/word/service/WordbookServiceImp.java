@@ -6,6 +6,7 @@ import com.api.pactory.domain.Word;
 import com.api.pactory.domain.Wordbook;
 import com.api.pactory.global.security.LoginMember;
 import com.api.pactory.global.utill.Member.AuthenticationMemberUtils;
+import com.api.pactory.global.utill.init.Shared;
 import com.api.pactory.global.utill.response.CustomApiResponse;
 import com.api.pactory.word.dto.WordDto;
 import com.api.pactory.word.dto.WordbookDto;
@@ -53,7 +54,8 @@ public class WordbookServiceImp implements WordbookService {
         Wordbook wordbook = Wordbook.builder()
                 .bookName(name)
                 .favorite(false)
-                .memberName(loginMember.getNickname())  // member 설정
+                .memberName(loginMember.getNickname())//사용자 설정
+                .shared(Shared.NOTSHARED)
                 .build();
 
         wordbook = wordbookRepository.save(wordbook);
