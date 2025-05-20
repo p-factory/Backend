@@ -29,6 +29,7 @@ public class WordPactoryServiceImp implements WordPactoryService {
 
     @Override
     public ResponseEntity<CustomApiResponse<?>> create(WordPactoryReq wordPactoryReq) {
-        Optional<Wordbook> wordbooks =wordbookRepository.findById(wordPactoryReq.getWordBookId());
-
+        Optional<Wordbook> wordbooks = wordbookRepository.findById(wordPactoryReq.getWordBookId());
+        return null;
+    }
 }

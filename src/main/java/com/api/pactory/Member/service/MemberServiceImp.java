@@ -1,6 +1,7 @@
 package com.api.pactory.Member.service;
 
 
+import com.api.pactory.Member.dto.ChangePasswordReq;
 import com.api.pactory.Member.dto.SigninResponseDto;
 import com.api.pactory.Member.dto.SignupRequestDto;
 import com.api.pactory.Member.enums.Authority;
@@ -91,6 +92,39 @@ public class MemberServiceImp implements MemberService {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Override
+    public ResponseEntity<CustomApiResponse<?>> updatePassword(Member loginMember, ChangePasswordReq changePasswordReq) {
 
+        //Member member = loginMember;
+//        if(!loginMember.getPassword().equals(changePasswordReq.getCurrentPassword())){
+//            return ResponseEntity
+//                    .badRequest()
+//                    .body(CustomApiResponse.createFailWithout(400, "비밀번호가 일치하지 않습니다."));
+//        }
+        if(!passwordEncoder.matches(changePasswordReq.getCurrentPassword(), loginMember.getPassword())){
+            return ResponseEntity
+                    .badRequest()
+                    .body(CustomApiResponse.createFailWithout(400, "비밀번호가 일치하지 않습니다"));
+        }
+
+        if(!changePasswordReq.getNewPassword().equals(changePasswordReq.getNewPasswordConfirm())){
+            return ResponseEntity
+                    .badRequest()
+                    .body(CustomApiResponse.createFailWithout(400, "올바르게 작성해주세요"));
+        }
+
+        //스프링 시큐리티에서 제공하는 비밀번호 암호화 도구
+        //encode(password) -> 비밀번호를 암호화된 문자열로 변환한다.
+        //Transactional로 따로 save를 작성하지 않아도 DB에 반영이 된다.
+        //BaseEntity에 @CreateDate @LastModifiedDate 사용중이므로 createAt, updateAt도 자동으로 변경된다.
+        loginMember.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        CustomApiResponse<?> response = CustomApiResponse.createSuccessWithoutData(200,
+                "비밀번호 변경 완료되었습니다.");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
+
+
+}
 
